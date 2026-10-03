@@ -1,0 +1,15 @@
+[package]
+name = "realtime-ekf-sensor-fusion"
+version = "0.1.0"
+edition = "2021"
+authors = ["Ardavan Ghal-Eh <ardavang2007@gmail.com>"]
+description = "High-performance Real-Time Extended Kalman Filter (EKF) & 6-DOF IMU Sensor Fusion Engine in Rust"
+license = "MIT"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[lib]
+name = "ekf_fusion"
+crate-type = ["cdylib", "rlib"]
