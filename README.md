@@ -3,7 +3,7 @@
 <!-- PROJECT SHIELDS -->
 <div align="center">
 
-[![Persian Documentation](https://img.shields.io/badge/مستندات-فارسی-green.svg?style=for-the-badge)](README_FA.md)
+[![Persian Documentation](https://img.shields.io/badge/مستندات-فارسی-green.svg?style=for-the-badge)](#persian-documentation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Rust Version](https://img.shields.io/badge/Rust-2021_Edition-DEA584.svg?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![Filter](https://img.shields.io/badge/Estimator-7--State_Quaternion_EKF-blue.svg?style=for-the-badge)](https://github.com/ArdavanGhal-Eh/realtime-ekf-sensor-fusion)
@@ -50,6 +50,7 @@
     <li><a href="#-roadmap--future-enhancements">Roadmap & Future Enhancements</a></li>
     <li><a href="#-contributing--license">Contributing & License</a></li>
     <li><a href="#-author--contact">Author & Contact</a></li>
+    <li><a href="#persian-documentation"><b>🇮🇷 مستندات جامع مهندسی به زبان فارسی (Persian Documentation)</b></a></li>
   </ol>
 </details>
 
@@ -298,3 +299,176 @@ Distributed under the **MIT License**. See `LICENSE` for details.
 - **Profile:** [github.com/ArdavanGhal-Eh](https://github.com/ArdavanGhal-Eh)
 
 <p align="right">(<a href="#readme-top">Back to top ↑</a>)</p>
+
+---
+---
+
+<a id="persian-documentation"></a>
+
+# 🇮🇷 بخش ۲: مستندات جامع مهندسی به زبان فارسی (Persian Documentation)
+
+<div align="center">
+  <a href="#readme-top"><strong>بازگشت به ابتدای مستندات انگلیسی (Back to Top / English) ↑</strong></a>
+</div>
+
+<br />
+
+# 🛰️ موتور فیوژن سنسوری فیلتر کالمن توسعه‌یافته ۶ درجه آزادی (Rust)
+### *سیستم مرجع وضعیت و جهت‌یابی (AHRS) کواترنیونی با تاخیر زیر میکروثانیه و الگوریتم ZUPT*
+
+<p align="center">
+  <b>یک موتور قطعی و بسیار سریع برای فیوژن داده‌های حسگر اندازه‌گیری اینرسی (IMU 6-DOF) در زبان راست. شامل فیلتر کالمن توسعه‌یافته ۷ حالته غیرخطی جهت تخمین وضعیت دورانی کواترنیون یکه و بایاس‌های ژیروسکوپ سه‌محوره، همراه با آشکارساز ایستایی ZUPT برای ربات‌های متحرک AGV، کوادروتورها و رهگیری موقعیت.</b>
+  <br /><br />
+  <a href="#-معماری-پایپلاین-فیلتر-کالمن"><strong>پایپ‌لاین فیلتر »</strong></a>
+  &nbsp;•&nbsp;
+  <a href="#-معادلات-ریاضی-کواترنیون-و-کالمن"><strong>روابط ریاضی کواترنیون »</strong></a>
+  &nbsp;•&nbsp;
+  <a href="#-راهنمای-نصب-و-اجرای-سریع"><strong>راهنمای اجرا »</strong></a>
+  &nbsp;•&nbsp;
+  <a href="README.md"><strong>English Version (README.md) »</strong></a>
+</p>
+
+</div>
+
+---
+
+<!-- فهرست مطالب -->
+<details open>
+  <summary><h2 style="display: inline-block;">📑 فهرست مطالب</h2></summary>
+  <ol>
+    <li><a href="#-طرح-مسئله-و-چالشهای-ناوبری">طرح مسئله و چالش‌های ناوبری</a></li>
+    <li><a href="#-قابلیتهای-کلیدی-سیستم">قابلیت‌های کلیدی سیستم</a></li>
+    <li><a href="#-معماری-پایپلاین-فیلتر-کالمن">معماری پایپ‌لاین فیلتر کالمن</a></li>
+    <li><a href="#-معادلات-ریاضی-کواترنیون-و-کالمن">معادلات ریاضی کواترنیون و کالمن</a></li>
+    <li><a href="#-پشته-فناوری">پشته فناوری</a></li>
+    <li><a href="#-ساختار-فایلهای-مخزن">ساختار فایل‌های مخزن</a></li>
+    <li><a href="#-بنچمارکهای-زمانی-و-تاخیر-اجرا">بنچمارک‌های زمانی و تاخیر اجرا</a></li>
+    <li><a href="#-راهنمای-نصب-و-اجرای-سریع">راهنمای نصب و اجرای سریع</a></li>
+    <li><a href="#-پدیدآورنده">پدیدآورنده</a></li>
+  </ol>
+</details>
+
+---
+
+## 📌 طرح مسئله و چالش‌های ناوبری
+
+در سیستم‌های ناوبری خودران (پهپادها، ربات‌های انبارداری AMR و هدست‌های واقعیت افزوده):
+1. **دریفت دمایی و بایاس سنسورهای MEMS:** ژیروسکوپ‌های تجاری ارزان‌قیمت دارای بایاس‌های متغیر با دما هستند که انتگرال‌گیری مستقیم زاویه از آن‌ها ظرف چند ثانیه خطای زاویه‌ای فاحش ایجاد می‌کند.
+2. **پدیده قفل گیمبال (Gimbal Lock):** زوایای اویلر کلاسیک ($\phi, \theta, \psi$) در زاویه شیب $\theta = \pm 90^\circ$ دچار تکینگی ریاضی می‌شوند. فرمول‌بندی چهارگان (Quaternion) این محدودیت را کاملاً برطرف می‌سازد.
+3. **الزام به تاخیر زیر میکروثانیه:** حلقه‌های کنترل پرواز نرخ بالا ($1-2\text{ kHz}$) نیازمند دریافت تخمین وضعیت در کمتر از چند میکروثانیه و بدون کوچکترین نوسان تاخیر ناشی از مدیریت حافظه هستند.
+
+این پروژه یک فیلتر EKF بهینه‌سازی‌شده در **Rust** ارائه می‌دهد که هر چرخه محاسباتی پیش‌بینی و تصحیح را در **کمتر از ۸۰۰ نانوثانیه** به پایان می‌رساند.
+
+<p align="right">(<a href="#readme-top">بازگشت به بالا ↑</a>)</p>
+
+---
+
+## ✨ قابلیت‌های کلیدی سیستم
+
+- 🧭 **بردار حالت ۷ متغیره کواترنیون:** رهگیری بدون تکینگی جهت‌گیری $\mathbf{q} \in \mathbb{H}$ همگام با تخمین آنلاین بردار بایاس ژایرو $\mathbf{b}_g \in \mathbb{R}^3$.
+- ⚡ **زمان چرخه زیر میکروثانیه (`< 0.8 µs`):** بدون تخصیص حافظه Heap در گام‌های Predict و Update، ضرب‌های ماتریسی کاملاً Unroll شده.
+- 🛑 **آشکارساز فاز توقف ZUPT (`src/zupt.rs`):** استفاده از آزمون نسبت شباهت تعمیم‌یافته (GLRT) برای صفر کردن دریفت سرعت در لحظات ایستادن ربات یا تماس چرخ با زمین.
+- 📐 **بردار نوآوری گرادیان گرانش:** اصلاح زاویه‌های Roll و Pitch با مقایسه شتاب خالص اندازه‌گیری‌شده در برابر بردار شتاب جاذبه زمین $[0, 0, -g]^T$.
+- 📊 **تضمین قید نرم کواترنیون:** حفظ شرط $||\mathbf{q}||_2 = 1$ و تضمین معین مثبت بودن ماتریس کوواریانس خطا $\mathbf{P}$.
+
+<p align="right">(<a href="#readme-top">بازگشت به بالا ↑</a>)</p>
+
+---
+
+## 🏗️ معماری پایپ‌لاین فیلتر کالمن
+
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│                   جریان داده حسگر اینرسی IMU سه‌محوره                  │
+│             - شتاب‌سنج سه‌محوره: a_m = [a_x, a_y, a_z]^T                │
+│             - ژیروسکوپ سه‌محوره: ω_m = [ω_x, ω_y, ω_z]^T                │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                انتشار زمانی غیرخطی فیلتر کالمن (Predict)               │
+│       - حذف بایاس تخمینی:  ω_unbiased = ω_m - b_g                      │
+│       - سینماتیک کواترنیون: q_dot = 0.5 * q ⊗ [0, ω_unbiased]          │
+│       - پیش‌بینی کوواریانس: P_k^- = F_k * P_(k-1) * F_k^T + Q_k        │
+└───────────────────┬────────────────────────────────┬───────────────────┘
+                    │                                │
+                    ▼                                ▼
+┌──────────────────────────────────────┐  ┌──────────────────────────────┐
+│       آشکارساز ایستایی ZUPT          │  │     گام اصلاح با بردار جاذبه │
+│  - تحلیل واریانس شتاب اندازه‌گیری‌شده│  │ - بردار نوآوری شتاب‌سنج      │
+│  - مهار دریفت سرعت ربات              │  │ - محاسبه بهره کالمن K        │
+└───────────────────┬──────────────────┘  └──────────────┬───────────────┘
+                    │                                    │
+                    ▼                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│             نرمال‌سازی کواترنیون و استخراج زوایای اویلر                │
+│                 q_k = q_k / ||q_k||  |  Roll, Pitch, Yaw               │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+<p align="right">(<a href="#readme-top">بازگشت به بالا ↑</a>)</p>
+
+---
+
+## 📐 معادلات ریاضی کواترنیون و کالمن
+
+### بردار حالت و مدل کینماتیک
+$$\mathbf{x} = \begin{bmatrix} q_0 & q_1 & q_2 & q_3 & b_{gx} & b_{gy} & b_{gz} \end{bmatrix}^T$$
+
+معادله مشتق زمانی کواترنیون برحسب سرعت زاویه‌ای $\boldsymbol{\omega} = \boldsymbol{\omega}_m - \mathbf{b}_g$:
+
+$$\dot{\mathbf{q}} = \frac{1}{2} \mathbf{q} \otimes \begin{bmatrix} 0 \\ \boldsymbol{\omega} \end{bmatrix}$$
+
+### گام تصحیح و بهره کالمن
+$$\mathbf{y}_k = \mathbf{z}_k - \mathbf{h}(\hat{\mathbf{x}}_k^-), \quad \mathbf{S}_k = \mathbf{H}_k \mathbf{P}_k^- \mathbf{H}_k^T + \mathbf{R}_k$$
+
+$$\mathbf{K}_k = \mathbf{P}_k^- \mathbf{H}_k^T \mathbf{S}_k^{-1}, \quad \hat{\mathbf{x}}_k = \hat{\mathbf{x}}_k^- + \mathbf{K}_k \mathbf{y}_k$$
+
+<p align="right">(<a href="#readme-top">بازگشت به بالا ↑</a>)</p>
+
+---
+
+## 📊 بنچمارک‌های زمانی و تاخیر اجرا
+
+| مرحله محاسباتی | میانگین زمان اجرا | تخصیص حافظه | بیشینه فرکانس تئوری |
+| :--- | :--- | :--- | :--- |
+| **گام پیش‌بینی (کواترنیون و کوواریانس)** | `320 ns` | ۰ بایت | `> 3.0 MHz` |
+| **گام تصحیح اندازه‌گیری (شتاب‌سنج)** | `410 ns` | ۰ بایت | `> 2.4 MHz` |
+| **آشکارسازی و تصحیح ایستایی ZUPT** | `65 ns` | ۰ بایت | `> 15.0 MHz` |
+| **کل چرخه EKF (پیش‌بینی + تصحیح)** | **`< 795 ns`** | **۰ بایت** | **`> 1.25 MHz`** |
+
+<p align="right">(<a href="#readme-top">بازگشت به بالا ↑</a>)</p>
+
+---
+
+## 🚀 راهنمای نصب و اجرای سریع
+
+```bash
+# کلون مخزن
+git clone https://github.com/ArdavanGhal-Eh/realtime-ekf-sensor-fusion.git
+cd realtime-ekf-sensor-fusion
+
+# بیلد حالت Release
+cargo build --release
+
+# اجرای آزمون شبیه‌سازی مسیر اینرسی
+cargo run --release
+```
+
+<p align="right">(<a href="#readme-top">بازگشت به بالا ↑</a>)</p>
+
+---
+
+## 👤 پدیدآورنده
+
+**اردوان قلعه**  
+*دانشکده مهندسی مکانیک، دانشگاه صنعتی شریف*  
+- **گیت‌هاب:** [@ArdavanGhal-Eh](https://github.com/ArdavanGhal-Eh)
+
+<p align="right">(<a href="#readme-top">بازگشت به بالا ↑</a>)</p>
+
+<br />
+
+<div align="center">
+  <a href="#readme-top"><strong>بازگشت به ابتدای صفحه (Back to Top) ↑</strong></a>
+</div>
