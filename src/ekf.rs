@@ -15,8 +15,8 @@ pub struct ExtendedKalmanFilter {
 impl ExtendedKalmanFilter {
     pub fn new() -> Self {
         let mut p = [[0.0; 7]; 7];
-        for i in 0..7 {
-            p[i][i] = 0.01;
+        for (i, row) in p.iter_mut().enumerate() {
+            row[i] = 0.01;
         }
         Self {
             q: Quaternion::identity(),
@@ -85,8 +85,8 @@ impl ExtendedKalmanFilter {
         self.gyro_bias.z += 0.1 * k * err_z;
 
         // Covariance update: P = (I - K*H) * P
-        for i in 0..7 {
-            self.p[i][i] *= (1.0 - 0.5 * k);
+        for (i, row) in self.p.iter_mut().enumerate() {
+            row[i] *= 1.0 - 0.5 * k;
         }
     }
 
@@ -95,5 +95,11 @@ impl ExtendedKalmanFilter {
         self.predict(measurement.gyro, dt);
         self.update_accel(measurement.accel);
         self.q.to_euler_angles()
+    }
+}
+
+impl Default for ExtendedKalmanFilter {
+    fn default() -> Self {
+        Self::new()
     }
 }
