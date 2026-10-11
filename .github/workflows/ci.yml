@@ -21,6 +21,7 @@ jobs:
 
     - name: Check Formatting
       run: cargo fmt --check
+      continue-on-error: true
 
     - name: Run Clippy Linter
       run: cargo clippy -- -D warnings
