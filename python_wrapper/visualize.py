@@ -6,14 +6,14 @@ def simulate_ekf_python():
     print("Generating EKF validation & comparison plot...")
     dt = 0.01
     time_span = np.arange(0.0, 10.0, dt)
-    
+
     # Ground truth sinusoidal motion
     true_pitch = np.sin(0.8 * time_span) * 20.0 # degrees
-    
+
     # Noisy sensor readings
     gyro_noise = np.random.normal(0, 1.5, len(time_span))
     raw_accel_pitch = true_pitch + np.random.normal(0, 4.0, len(time_span))
-    
+
     # Simple simulated complementary / EKF estimate
     estimated_pitch = np.zeros_like(time_span)
     current_est = 0.0
@@ -32,7 +32,7 @@ def simulate_ekf_python():
     ax.set_ylabel("Pitch Angle (degrees)")
     ax.grid(True, linestyle='--', alpha=0.6)
     ax.legend(loc='upper right')
-    
+
     plt.tight_layout()
     output_path = "ekf_tracking_benchmark.png"
     plt.savefig(output_path, dpi=200)
