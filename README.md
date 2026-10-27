@@ -247,17 +247,17 @@ use ekf_fusion::{ExtendedKalmanFilter, ImuMeasurement, Vector3};
 
 fn main() {
     let mut ekf = ExtendedKalmanFilter::new();
-    
+
     let imu = ImuMeasurement {
         accel: Vector3::new(0.0, 0.0, 9.81),
         gyro: Vector3::new(0.01, -0.02, 0.0),
         dt: 0.01,
     };
-    
+
     // Execute sub-microsecond state update
     ekf.predict(imu.gyro, imu.dt);
     ekf.update_accel(imu.accel);
-    
+
     let (roll, pitch, yaw) = ekf.get_euler_angles();
     println!("Roll: {:.2}°, Pitch: {:.2}°, Yaw: {:.2}°", roll, pitch, yaw);
 }
@@ -293,8 +293,8 @@ Distributed under the **MIT License**. See `LICENSE` for details.
 
 ## 👤 Author & Contact
 
-**Ardavan Ghal-Eh**  
-*Department of Mechanical Engineering, Sharif University of Technology*  
+**Ardavan Ghal-Eh**
+*Department of Mechanical Engineering, Sharif University of Technology*
 - **GitHub:** [@ArdavanGhal-Eh](https://github.com/ArdavanGhal-Eh)
 - **Profile:** [github.com/ArdavanGhal-Eh](https://github.com/ArdavanGhal-Eh)
 
@@ -461,8 +461,8 @@ cargo run --release
 
 ## 👤 پدیدآورنده
 
-**اردوان قلعه**  
-*دانشکده مهندسی مکانیک، دانشگاه صنعتی شریف*  
+**اردوان قلعه**
+*دانشکده مهندسی مکانیک، دانشگاه صنعتی شریف*
 - **گیت‌هاب:** [@ArdavanGhal-Eh](https://github.com/ArdavanGhal-Eh)
 
 <p align="right">(<a href="#readme-top">بازگشت به بالا ↑</a>)</p>
