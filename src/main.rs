@@ -16,7 +16,7 @@ fn main() {
 
     for step in 0..total_steps {
         let t = step as f64 * dt;
-        
+
         // Simulated noisy angular velocity (yaw rotation + noise)
         let true_rate = (t * 0.5).sin() * 0.2;
         let noise = ((step % 7) as f64 - 3.0) * 0.005;
